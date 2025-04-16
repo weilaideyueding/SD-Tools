@@ -2,13 +2,23 @@ import sd
 import os
 import glob
 
-from .PIL import Image
+try:
+    from .PIL_11_1 import Image
+except:
+    try:
+        from .PIL_11_2 import Image
+    except:
+        from PIL import Image
+
+# from PIL import Image
 
 from sd.api import sdproperty
 try:
     from PySide2 import QtWidgets, QtCore, QtGui
+    PYSIDE_VERSION = 2
 except:
     from PySide6 import QtWidgets, QtCore, QtGui
+    PYSIDE_VERSION = 6
 
 from sd.api.apiexception import APIException
 
@@ -365,10 +375,10 @@ class MyProcessUI(QtWidgets.QMainWindow):
         self.btn_get_dir = QtWidgets.QPushButton()
         self.btn_get_dir.setText("Select Folder")
         self.btn_get_dir.clicked.connect(self.get_output_dir)
-        self.btn_get_dir.setToolTip("当然就只是选择文件夹咯")
+        self.btn_get_dir.setToolTip("当然就只是选择文件夹咯(it's just about selecting folders.)")
 
         self.label_duration = QtWidgets.QLabel("Duration:")
-        self.label_duration.setToolTip("Per frame duration")
+        self.label_duration.setToolTip("每一帧的间隔（The interval between each frame）")
         self.label_duration.setMinimumWidth(50)
 
         self.slider_duration = QtWidgets.QSlider(orientation=QtCore.Qt.Horizontal)
@@ -387,13 +397,13 @@ class MyProcessUI(QtWidgets.QMainWindow):
         self.btn_get_select = QtWidgets.QPushButton()
         self.btn_get_select.setMinimumSize(60, 40)
         self.btn_get_select.setText("Get Select")
-        self.btn_get_select.setToolTip("将选择的节点加入列表")
+        self.btn_get_select.setToolTip("将选择的节点加入列表(Add the selected nodes to the list)")
         self.btn_get_select.clicked.connect(self.get_select_node)
 
         self.btn_export_tex = QtWidgets.QPushButton()
         self.btn_export_tex.setMinimumSize(60, 40)
         self.btn_export_tex.setText("Export Tex")
-        self.btn_export_tex.setToolTip("将列表导出图片与Gif")
+        self.btn_export_tex.setToolTip("将列表导出图片与Gif(Export the list as images and Gif animations)")
         self.btn_export_tex.clicked.connect(self.export_process_gif)
 
 
@@ -575,11 +585,15 @@ def create_process_menu():
 
     menu = uiMgr.newMenu(menuTitle="Tools", objectName="weilai.tools.process_tex")
 
-    act = QtWidgets.QAction("Process Tex", menu)
+    if PYSIDE_VERSION == 2:
+        act = QtWidgets.QAction("Process Tex", menu)
+    else:
+        act = QtGui.QAction("Process Tex", menu)
+
     act.triggered.connect(lambda: create_process_ui(uiMgr))
 
     menu.addAction(act)
-
+# create_process_menu()
 
 def delete_process_menu():
     nemu = uiMgr.findMenuFromObjectName(menu_id)
